@@ -890,6 +890,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a83d08d1e5e85f408a5ca5901b78b30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  moveSpeed: 5
 --- !u!4 &1696719418
 Transform:
   m_ObjectHideFlags: 0
