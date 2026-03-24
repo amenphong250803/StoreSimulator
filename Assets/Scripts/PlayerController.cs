@@ -28,6 +28,8 @@ public class PlayerController : MonoBehaviour
 
     public float throwForce;
 
+    public LayerMask whatIsShelf;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -80,27 +82,44 @@ public class PlayerController : MonoBehaviour
         Ray ray = theCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if(Mouse.current.leftButton.wasPressedThisFrame)
+        if(heldPickup == null)
         {
-            if (Physics.Raycast(ray, out hit, interactionRange, whatIsStock))
+            if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                heldPickup = hit.collider.gameObject;
-                heldPickup.transform.SetParent(holdPoint);
-                heldPickup.transform.localPosition = Vector3.zero;
-                heldPickup.transform.localRotation = Quaternion.identity;
+                if (Physics.Raycast(ray, out hit, interactionRange, whatIsStock))
+                {
+                    heldPickup = hit.collider.gameObject;
+                    heldPickup.transform.SetParent(holdPoint);
+                    heldPickup.transform.localPosition = Vector3.zero;
+                    heldPickup.transform.localRotation = Quaternion.identity;
 
-                heldPickup.GetComponent<Rigidbody>().isKinematic = true;
+                    heldPickup.GetComponent<Rigidbody>().isKinematic = true;
+                }
             }
         }
-
-        if(Mouse.current.rightButton.wasPressedThisFrame)
+        else
         {
-            Rigidbody pickupRB = heldPickup.GetComponent<Rigidbody>();
-            pickupRB.isKinematic = false;
-            pickupRB.AddForce(theCam.transform.forward * throwForce, ForceMode.Impulse);
+            if(Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
+                {
+                    heldPickup.transform.position = hit.transform.position;
+                    heldPickup.transform.rotation = hit.transform.rotation;
 
-            heldPickup.transform.SetParent(null);
-            heldPickup = null;
+                    heldPickup.transform.SetParent(null);
+                    heldPickup = null;
+                }
+            }
+
+            if (Mouse.current.rightButton.wasPressedThisFrame)
+            {
+                Rigidbody pickupRB = heldPickup.GetComponent<Rigidbody>();
+                pickupRB.isKinematic = false;
+                pickupRB.AddForce(theCam.transform.forward * throwForce, ForceMode.Impulse);
+
+                heldPickup.transform.SetParent(null);
+                heldPickup = null;
+            }
         }
     }
 }
