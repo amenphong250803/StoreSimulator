@@ -4,9 +4,11 @@ public class StockObject : MonoBehaviour
 {
     public float moveSpeed;
 
-    private bool isPlaced;
+    public bool isPlaced;
 
     public Rigidbody theRB;
+
+    public StockInfo info;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
