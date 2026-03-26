@@ -3,13 +3,14 @@ using UnityEngine;
 
 public class StockObject : MonoBehaviour
 {
+    public StockInfo info;
+
     public float moveSpeed;
 
     public bool isPlaced;
 
     public Rigidbody theRB;
 
-    public StockInfo info;
     public Collider col;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
