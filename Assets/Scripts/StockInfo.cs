@@ -10,4 +10,8 @@ public class StockInfo
         cereal, bigDrink, chipsTube, fruit, fruitLarge
     }
     public StockType typeOfStock;
+
+    public float price;
+
+    public StockObject stockObject;
 }
