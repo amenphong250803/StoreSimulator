@@ -153,6 +153,7 @@ MonoBehaviour:
   info:
     name: Pineapple
     typeOfStock: 4
+    price: 7
   moveSpeed: 5
   isPlaced: 0
   theRB: {fileID: 6969808710461395643}

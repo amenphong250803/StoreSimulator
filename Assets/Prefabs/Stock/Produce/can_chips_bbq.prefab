@@ -153,6 +153,7 @@ MonoBehaviour:
   info:
     name: BBQ Chips
     typeOfStock: 2
+    price: 5.5
   moveSpeed: 5
   isPlaced: 0
   theRB: {fileID: 7743184491531821721}

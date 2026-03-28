@@ -153,6 +153,7 @@ MonoBehaviour:
   info:
     name: Cola Drink
     typeOfStock: 1
+    price: 1.5
   moveSpeed: 5
   isPlaced: 0
   theRB: {fileID: 8709846099024343963}
