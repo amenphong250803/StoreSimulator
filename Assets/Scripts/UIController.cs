@@ -18,6 +18,8 @@ public class UIController : MonoBehaviour
 
     private StockInfo activeStockInfo;
 
+    public TMP_Text moneyText;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -60,5 +62,10 @@ public class UIController : MonoBehaviour
             StockInfoController.instance.UpdatePrice(activeStockInfo.name, activeStockInfo.currentPrice);
 
             CloseUpdatePrice();
+    }
+
+    public void UpdateMoney(float currentMoney)
+    {
+        moneyText.text = "$" + currentMoney.ToString("F2");
     }
 }
