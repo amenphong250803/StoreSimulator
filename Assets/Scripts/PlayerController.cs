@@ -30,6 +30,13 @@ public class PlayerController : MonoBehaviour
 
     public LayerMask whatIsShelf;
 
+    public LayerMask whatIsStockBox;
+    public StockBoxController heldBox;
+    public Transform boxHoldPoint;
+
+    public float waitToPlaceStock;
+    private float placeStockCounter;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -90,7 +97,7 @@ public class PlayerController : MonoBehaviour
         Ray ray = theCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if(heldPickup == null)
+        if(heldPickup == null && heldBox == null)
         {
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
@@ -106,6 +113,24 @@ public class PlayerController : MonoBehaviour
                     heldPickup = hit.collider.GetComponent<StockObject>();
                     heldPickup.transform.SetParent(holdPoint);
                     heldPickup.Pickup();
+
+                    return;
+                }
+
+                if (Physics.Raycast(ray, out hit, interactionRange, whatIsStockBox))
+                {
+                    heldBox = hit.collider.GetComponent<StockBoxController>();
+
+                    heldBox.transform.SetParent(boxHoldPoint);
+                    heldBox.Pickup();
+
+                    if(heldBox.flap1.activeSelf == true)
+                    {
+                        heldBox.OpenClose();
+                    }
+                    
+
+                    return;
                 }
             }
 
@@ -119,7 +144,13 @@ public class PlayerController : MonoBehaviour
                     {
                         heldPickup.transform.SetParent(holdPoint);
                         heldPickup.Pickup();
-                    }    
+                    }
+                    return;
+                }
+
+                if (Physics.Raycast(ray, out hit, interactionRange, whatIsStockBox))
+                {
+                    hit.collider.GetComponent<StockBoxController>().OpenClose();
                 }
             }
 
@@ -133,37 +164,82 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            if (heldPickup != null)
+            {
+                if (Mouse.current.leftButton.wasPressedThisFrame)
+                {
+                    if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
+                    {
+                        /* heldPickup.transform.position = hit.transform.position;
+                        heldPickup.transform.rotation = hit.transform.rotation;
+
+                        heldPickup.transform.SetParent(null);
+                        heldPickup = null; */
+
+                        /* heldPickup.MakePlaced();
+
+                        heldPickup.transform.SetParent(hit.transform);
+                        heldPickup = null; */
+
+                        hit.collider.GetComponent<ShelfSpaceController>().PlaceStock(heldPickup);
+
+                        if (heldPickup.isPlaced == true)
+                        {
+                            heldPickup = null;
+                        }
+                    }
+                }
+
+                if (Mouse.current.rightButton.wasPressedThisFrame)
+                {
+                    heldPickup.Release();
+                    heldPickup.theRB.AddForce(theCam.transform.forward * throwForce, ForceMode.Impulse);
+
+                    heldPickup.transform.SetParent(null);
+                    heldPickup = null;
+                }
+            }
+
+            if(heldBox != null)
+            {
+                if (Mouse.current.rightButton.wasPressedThisFrame)
+                {
+                    heldBox.Release();
+                    heldBox.theRB.AddForce(theCam.transform.forward * throwForce, ForceMode.Impulse);
+
+                    heldBox.transform.SetParent(null);
+                    heldBox = null;
+                }
+            }
+
+            if(Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                heldBox.OpenClose();
+            }
+
             if(Mouse.current.leftButton.wasPressedThisFrame)
             {
                 if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
                 {
-                    /* heldPickup.transform.position = hit.transform.position;
-                    heldPickup.transform.rotation = hit.transform.rotation;
+                    heldBox.PlaceStockOnShelf(hit.collider.GetComponent<ShelfSpaceController>());
 
-                    heldPickup.transform.SetParent(null);
-                    heldPickup = null; */
-
-                    /* heldPickup.MakePlaced();
-
-                    heldPickup.transform.SetParent(hit.transform);
-                    heldPickup = null; */
-
-                    hit.collider.GetComponent<ShelfSpaceController>().PlaceStock(heldPickup);
-
-                    if(heldPickup.isPlaced == true)
-                    {
-                        heldPickup = null;
-                    }
+                    placeStockCounter = waitToPlaceStock;
                 }
             }
 
-            if (Mouse.current.rightButton.wasPressedThisFrame)
+            if(Mouse.current.leftButton.isPressed)
             {
-                heldPickup.Release();
-                heldPickup.theRB.AddForce(theCam.transform.forward * throwForce, ForceMode.Impulse);
+                placeStockCounter -= Time.deltaTime;
 
-                heldPickup.transform.SetParent(null);
-                heldPickup = null;
+                if(placeStockCounter <= 0)
+                {
+                    if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
+                    {
+                        heldBox.PlaceStockOnShelf(hit.collider.GetComponent<ShelfSpaceController>());
+
+                        placeStockCounter = waitToPlaceStock;
+                    }
+                }
             }
         }
     }
