@@ -98,7 +98,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8776589958633702270}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2.911, y: 0, z: 6.544}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -143,7 +143,7 @@ MonoBehaviour:
   mainObject: {fileID: 1908619934876812572}
   placingObject: {fileID: 6538036320064083527}
   col: {fileID: 8228697101973523937}
-  price: 450
+  price: 500
 --- !u!1001 &206206514324909752
 PrefabInstance:
   m_ObjectHideFlags: 0
