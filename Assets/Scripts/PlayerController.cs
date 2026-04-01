@@ -39,6 +39,10 @@ public class PlayerController : MonoBehaviour
 
     public LayerMask whatIsBin;
 
+    public LayerMask whatIsFurniture;
+    public Transform furniturePoint;
+    public FurnitureController heldFurniture;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -107,19 +111,12 @@ public class PlayerController : MonoBehaviour
         Ray ray = theCam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         RaycastHit hit;
 
-        if(heldPickup == null && heldBox == null)
+        if(heldPickup == null && heldBox == null && heldFurniture == null)
         {
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
                 if (Physics.Raycast(ray, out hit, interactionRange, whatIsStock))
                 {
-                    /* heldPickup = hit.collider.gameObject;
-                    heldPickup.transform.SetParent(holdPoint);
-                    heldPickup.transform.localPosition = Vector3.zero;
-                    heldPickup.transform.localRotation = Quaternion.identity;
-
-                    heldPickup.GetComponent<Rigidbody>().isKinematic = true; */
-
                     heldPickup = hit.collider.GetComponent<StockObject>();
                     heldPickup.transform.SetParent(holdPoint);
                     heldPickup.Pickup();
@@ -171,6 +168,20 @@ public class PlayerController : MonoBehaviour
                     hit.collider.GetComponent<ShelfSpaceController>().StartPriceUpdate();
                 }
             }
+
+            if(Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                if (Physics.Raycast(ray, out hit, interactionRange, whatIsFurniture))
+                {
+                    heldFurniture = hit.transform.GetComponent<FurnitureController>();
+
+                    heldFurniture.transform.SetParent(furniturePoint);
+                    heldFurniture.transform.localPosition = Vector3.zero;
+                    heldFurniture.transform.localRotation = Quaternion.identity;
+
+                    heldFurniture.MakePlaceable();
+                }
+            }
         }
         else
         {
@@ -180,16 +191,6 @@ public class PlayerController : MonoBehaviour
                 {
                     if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
                     {
-                        /* heldPickup.transform.position = hit.transform.position;
-                        heldPickup.transform.rotation = hit.transform.rotation;
-
-                        heldPickup.transform.SetParent(null);
-                        heldPickup = null; */
-
-                        /* heldPickup.MakePlaced();
-
-                        heldPickup.transform.SetParent(hit.transform);
-                        heldPickup = null; */
 
                         hit.collider.GetComponent<ShelfSpaceController>().PlaceStock(heldPickup);
 
@@ -220,50 +221,61 @@ public class PlayerController : MonoBehaviour
                     heldBox.transform.SetParent(null);
                     heldBox = null;
                 }
-            }
 
-            if(Keyboard.current.eKey.wasPressedThisFrame)
-            {
-                heldBox.OpenClose();
-            }
-
-            if(Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                if (heldBox.stockInBox.Count > 0)
+                if (Keyboard.current.eKey.wasPressedThisFrame)
                 {
-                    if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
-                    {
-                        heldBox.PlaceStockOnShelf(hit.collider.GetComponent<ShelfSpaceController>());
-
-                        placeStockCounter = waitToPlaceStock;
-                    }
-                }
-                else
-                {
-                    if (Physics.Raycast(ray, out hit, interactionRange, whatIsBin))
-                    {
-                        Destroy(heldBox.gameObject);
-
-                        heldBox = null;
-                    }
+                    heldBox.OpenClose();
                 }
 
+                if (Mouse.current.leftButton.wasPressedThisFrame)
+                {
+                    if (heldBox.stockInBox.Count > 0)
+                    {
+                        if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
+                        {
+                            heldBox.PlaceStockOnShelf(hit.collider.GetComponent<ShelfSpaceController>());
 
+                            placeStockCounter = waitToPlaceStock;
+                        }
+                    }
+                    else
+                    {
+                        if (Physics.Raycast(ray, out hit, interactionRange, whatIsBin))
+                        {
+                            Destroy(heldBox.gameObject);
 
+                            heldBox = null;
+                        }
+                    }
+                }
+
+                if (Mouse.current.leftButton.isPressed)
+                {
+                    placeStockCounter -= Time.deltaTime;
+
+                    if (placeStockCounter <= 0)
+                    {
+                        if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
+                        {
+                            heldBox.PlaceStockOnShelf(hit.collider.GetComponent<ShelfSpaceController>());
+
+                            placeStockCounter = waitToPlaceStock;
+                        }
+                    }
+                }
             }
 
-            if(Mouse.current.leftButton.isPressed)
+            if (heldFurniture != null)
             {
-                placeStockCounter -= Time.deltaTime;
+                heldFurniture.transform.position = new Vector3(furniturePoint.position.x, 0f, furniturePoint.position.z);
 
-                if(placeStockCounter <= 0)
+                if (Mouse.current.leftButton.wasPressedThisFrame || Keyboard.current.rKey.wasPressedThisFrame)
                 {
-                    if (Physics.Raycast(ray, out hit, interactionRange, whatIsShelf))
-                    {
-                        heldBox.PlaceStockOnShelf(hit.collider.GetComponent<ShelfSpaceController>());
+                    heldFurniture.transform.SetParent(null);
 
-                        placeStockCounter = waitToPlaceStock;
-                    }
+                    heldFurniture.PlaceFurniture();
+
+                    heldFurniture = null;
                 }
             }
         }
