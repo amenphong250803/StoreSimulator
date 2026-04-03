@@ -3,15 +3,17 @@ using UnityEngine;
 
 public class Customer : MonoBehaviour
 {
-    public List<Transform> points = new List<Transform>();
+    public List<NavPoint> points = new List<NavPoint>();
 
     public float moveSpeed;
     private float currentWaitTime;
 
+    public Animator anim;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        currentWaitTime = 0.5f;
+        currentWaitTime = points[0].waitTime;
     }
 
     // Update is called once per frame
@@ -25,7 +27,9 @@ public class Customer : MonoBehaviour
 
     public void MoveToPoint()
     {
-        Vector3 targetPosition = new Vector3(points[0].position.x, transform.position.y, points[0].position.z);
+        bool isMoving = true;
+
+        Vector3 targetPosition = new Vector3(points[0].point.position.x, transform.position.y, points[0].point.position.z);
 
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
 
@@ -33,16 +37,16 @@ public class Customer : MonoBehaviour
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.25f)
         {
-            if (currentWaitTime > 0)
-            {
+            isMoving = false;
+
                 currentWaitTime -= Time.deltaTime;
 
                 if (currentWaitTime < 0)
                 {
                     StartNextPoint();
                 }
-            }
         }
+        anim.SetBool("isMoving", isMoving);
     }
 
     public void StartNextPoint()
@@ -51,10 +55,17 @@ public class Customer : MonoBehaviour
         {
             points.RemoveAt(0);
 
-            if (points.Count > 1)
+            if (points.Count > 0)
             {
-                currentWaitTime = 0.5f;
+                currentWaitTime = points[0].waitTime;
             }
         }
     }
+}
+
+[System.Serializable]
+public class NavPoint
+{
+    public Transform point;
+    public float waitTime;
 }
