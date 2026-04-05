@@ -117,17 +117,19 @@ public class Customer : MonoBehaviour
 
     public void MoveToPoint()
     {
-        bool isMoving = true;
-
-        Vector3 targetPosition = new Vector3(points[0].point.position.x, transform.position.y, points[0].point.position.z);
-
-        transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-
-        transform.LookAt(targetPosition);
-
-        if (Vector3.Distance(transform.position, targetPosition) < 0.25f)
+        if (points.Count > 0)
         {
-            isMoving = false;
+            bool isMoving = true;
+
+            Vector3 targetPosition = new Vector3(points[0].point.position.x, transform.position.y, points[0].point.position.z);
+
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+
+            transform.LookAt(targetPosition);
+
+            if (Vector3.Distance(transform.position, targetPosition) < 0.25f)
+            {
+                isMoving = false;
 
                 currentWaitTime -= Time.deltaTime;
 
@@ -135,8 +137,13 @@ public class Customer : MonoBehaviour
                 {
                     StartNextPoint();
                 }
+            }
+            anim.SetBool("isMoving", isMoving);
         }
-        anim.SetBool("isMoving", isMoving);
+        else
+        {
+            StartNextPoint();
+        }
     }
 
     public void StartNextPoint()
