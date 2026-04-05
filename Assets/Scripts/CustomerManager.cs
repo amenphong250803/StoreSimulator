@@ -37,7 +37,7 @@ public class CustomerManager : MonoBehaviour
 
     public void SpawnCustomer()
     {
-        Instantiate(customersToSpawn[Random.Range(0, 16)]);
+        Instantiate(customersToSpawn[Random.Range(0, customersToSpawn.Count)]);
 
         spawnCounter = timeBetweenCustomers * Random.Range(.75f, 1.25f);
     }
