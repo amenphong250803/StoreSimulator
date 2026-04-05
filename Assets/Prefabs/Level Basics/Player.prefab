@@ -322,7 +322,7 @@ GameObject:
   - component: {fileID: 6746278890390342605}
   - component: {fileID: 260032794888224146}
   - component: {fileID: 2358265020072966899}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -392,6 +392,9 @@ MonoBehaviour:
     m_Bits: 1024
   furniturePoint: {fileID: 1705841977662660778}
   heldFurniture: {fileID: 0}
+  whatIsCheckout:
+    serializedVersion: 2
+    m_Bits: 4096
 --- !u!143 &2358265020072966899
 CharacterController:
   m_ObjectHideFlags: 0

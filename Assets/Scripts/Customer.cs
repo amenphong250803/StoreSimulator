@@ -26,6 +26,8 @@ public class Customer : MonoBehaviour
 
     private List<StockObject> stockInBag = new List<StockObject>();
 
+    private Vector3 queuePoint;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -84,7 +86,15 @@ public class Customer : MonoBehaviour
                         }
                         else
                         {
-                            StartLeaving();
+                            if (stockInBag.Count > 0)
+                            {
+                                Checkout.instance.AddCustomerToQueue(this);
+
+                                currentState = CustomerState.queuing;
+                            } else
+                            {
+                                StartLeaving();
+                            }
                         }
                     }                    
                 }
@@ -92,6 +102,17 @@ public class Customer : MonoBehaviour
 
             case CustomerState.queuing:
 
+                transform.position = Vector3.MoveTowards(transform.position, queuePoint, moveSpeed * Time.deltaTime);
+
+                if (Vector3.Distance(transform.position, queuePoint) > 0.1f)
+                {
+                    anim.SetBool("isMoving", true);
+
+                } else
+                {
+                    anim.SetBool("isMoving", false);
+                    
+                }
                 break;
 
             case CustomerState.atCheckout:
@@ -205,6 +226,24 @@ public class Customer : MonoBehaviour
             points[0].waitTime = waitAfterGrabbing * Random.Range(0.75f, 1.25f);
             currentWaitTime = points[0].waitTime;
         }
+    }
+
+    public void UpdateQueuePoint(Vector3 newPoint)
+    {
+        queuePoint = newPoint;
+        transform.LookAt(queuePoint);
+    }
+
+    public float GetTotalSpend()
+    {
+        float total = 0f;
+
+        foreach (StockObject stock in stockInBag)
+        {
+            total += stock.info.currentPrice;
+        }
+
+        return total;
     }
 }
 
