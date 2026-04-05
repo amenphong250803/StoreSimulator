@@ -10,6 +10,22 @@ public class Customer : MonoBehaviour
 
     public Animator anim;
 
+    public enum CustomerState { entering, browsing, queuing, atCheckout, leaving }
+    public CustomerState currentState;
+
+    public int maxBrowsePoints = 5;
+    private int browsePointsRemain;
+
+    public float browswTime;
+
+    public FurnitureController currentShelfCase;
+
+    public GameObject shoppingBag;
+    private bool hasGrabbed;
+    public float waitAfterGrabbing = 0.5f;
+
+    private List<StockObject> stockInBag = new List<StockObject>();
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -23,16 +39,80 @@ public class Customer : MonoBehaviour
             currentWaitTime = points[0].waitTime;
         }
 
-        points.AddRange(CustomerManager.instance.GetExitPoints());
+        //points.AddRange(CustomerManager.instance.GetExitPoints());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (points.Count > 0)
+        switch (currentState)
         {
-            MoveToPoint();
+            case CustomerState.entering:
+
+                if (points.Count > 0)
+                {
+                    MoveToPoint();
+                } else
+                {
+                    currentState = CustomerState.browsing;
+
+                    browsePointsRemain = Random.Range(1, maxBrowsePoints + 1);
+                    browsePointsRemain = Mathf.Clamp(browsePointsRemain, 1, StoreController.instance.shelvingCases.Count);
+
+                    GetBrowsePoint();
+                }
+                break;
+
+            case CustomerState.browsing:
+
+                MoveToPoint();
+
+                if (points.Count == 0)
+                {
+                    if (hasGrabbed == false)
+                    {
+                        GrabStock();
+                    }
+                    else
+                    {
+                        hasGrabbed = false;
+
+                        browsePointsRemain--;
+                        if (browsePointsRemain > 0)
+                        {
+                            GetBrowsePoint();
+                        }
+                        else
+                        {
+                            StartLeaving();
+                        }
+                    }                    
+                }
+                break;
+
+            case CustomerState.queuing:
+
+                break;
+
+            case CustomerState.atCheckout:
+
+                break;
+
+            case CustomerState.leaving:
+
+                if (points.Count > 0)
+                {
+                    MoveToPoint();
+                }
+                else
+                {
+                    Destroy(gameObject);
+                }
+
+                break;
         }
+
+
     }
 
     public void MoveToPoint()
@@ -69,6 +149,54 @@ public class Customer : MonoBehaviour
             {
                 currentWaitTime = points[0].waitTime;
             }
+        }
+    }
+
+    public void StartLeaving()
+    {
+        currentState = CustomerState.leaving;
+
+        points.Clear();
+        points.AddRange(CustomerManager.instance.GetExitPoints());
+    }
+
+    void GetBrowsePoint()
+    {
+        points.Clear();
+
+        int selectedShelf = Random.Range(0, StoreController.instance.shelvingCases.Count);
+
+        points.Add(new NavPoint());
+        points[0].point = StoreController.instance.shelvingCases[selectedShelf].standPoint;
+
+        points[0].waitTime = browswTime * Random.Range(0.75f, 1.25f);
+
+        currentWaitTime = points[0].waitTime;
+
+        currentShelfCase = StoreController.instance.shelvingCases[selectedShelf];
+    }
+
+    public void GrabStock()
+    {
+        hasGrabbed = true;
+
+        int shelf = Random.Range(0, currentShelfCase.shelves.Count);
+
+        StockObject stock = currentShelfCase.shelves[shelf].GetStock();
+
+        if (stock != null)
+        {
+            stock.transform.SetParent(shoppingBag.transform);
+            stockInBag.Add(stock);
+            stock.PlaceInBag();
+
+            shoppingBag.SetActive(true);
+
+            points.Clear();
+            points.Add(new NavPoint());
+            points[0].point = currentShelfCase.standPoint;
+            points[0].waitTime = waitAfterGrabbing * Random.Range(0.75f, 1.25f);
+            currentWaitTime = points[0].waitTime;
         }
     }
 }
