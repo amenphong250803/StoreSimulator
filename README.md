@@ -4,9 +4,6 @@ A 3D store simulation game developed with **Unity and C#**.
 
 The project focuses on building a complete gameplay loop, from managing inventory and displaying products to interacting with shelves and completing customer purchases.
 
-## Demo
-
-> Add gameplay video or GIF here.
 
 ## Features
 
